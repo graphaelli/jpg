@@ -1,0 +1,34 @@
+package structure
+
+import (
+	"bufio"
+	"reflect"
+	"strings"
+	"testing"
+)
+
+func TestLoad(t *testing.T) {
+	const tinyJpg = "" +
+		"\xff\xd8\xff\xdb\x00\x43\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02" +
+		"\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05" +
+		"\x06\x09\x08\x0a\x0a\x09\x08\x09\x09\x0a\x0c\x0f\x0c\x0a\x0b\x0e" +
+		"\x0b\x09\x09\x0d\x11\x0d\x0e\x0f\x10\x10\x11\x10\x0a\x0c\x12\x13" +
+		"\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01" +
+		"\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08" +
+		"\x01\x01\x00\x00\x3f\x00\xd2\xcf\x20\xff\xd9"
+
+	got, err := Load(bufio.NewReader(strings.NewReader(tinyJpg)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []Mark{
+		{Address: 2, Marker: 0xd8, Length: 0},
+		{Address: 4, Marker: 0xdb, Length: 67},
+		{Address: 73, Marker: 0xc9, Length: 11},
+		{Address: 86, Marker: 0xcc, Length: 6},
+		{Address: 94, Marker: 0xda, Length: 8},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("\nwanted: %v\n got  : %v", want, got)
+	}
+}

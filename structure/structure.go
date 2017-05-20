@@ -1,9 +1,9 @@
 package structure
 
 import (
-	"bufio"
 	"encoding/binary"
 	"fmt"
+	"io"
 )
 
 const (
@@ -44,6 +44,11 @@ const (
 	app15Marker = app0Marker | 0x0f
 )
 
+type jpegReader interface {
+	io.Reader
+	io.ByteReader
+}
+
 var markerName map[byte]string
 
 type Mark struct {
@@ -78,7 +83,7 @@ func MarkerName(marker byte) string {
 
 // advanceToMarker moves j to the start of the next Marker, returning
 // the number of bytes consumed and either the first byte of the next part or an error
-func advanceToMarker(j *bufio.Reader) (int, byte, error) {
+func advanceToMarker(j io.ByteReader) (int, byte, error) {
 	var consumed int = 0
 	var b byte
 	var err error
@@ -116,7 +121,7 @@ func hasLength(marker byte) bool {
 		marker == dhtMarker || marker == dqtMarker || marker == driMarker || marker == comMarker || marker == sosMarker
 }
 
-func Load(r *bufio.Reader) ([]Mark, error) {
+func Load(r jpegReader) ([]Mark, error) {
 	var marks []Mark
 	var marker byte
 
